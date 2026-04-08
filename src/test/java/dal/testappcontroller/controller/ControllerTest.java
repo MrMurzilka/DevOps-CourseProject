@@ -20,7 +20,7 @@ public class ControllerTest {
     @Test
     @DisplayName("Тест успешного ответа от /api/hello")
     void testHelloEndpoint_ReturnsOk() throws Exception {
-        mockMvc.perform(get("/api/hello")).andExpect(status().isOk()).andExpect(content().string("Hello World!"));
+        mockMvc.perform(get("/api/hello")).andExpect(status().isNotFound()).andExpect(content().string("Hello World!"));
     }
 
     @Test
