@@ -1,0 +1,38 @@
+name: Java CI/CD Pipeline
+
+# 1. Триггеры: запускаем пайплайн при пуше в основные ветки (согласно GitFlow)
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  build-and-test:
+    # Запускаем на свежей виртуальной машине Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Копируем код репозитория на виртуальную машину
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Шаг 2: Устанавливаем Java (выбери свою версию: 17 или 21)
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven # Кэширование ускорит последующие сборки
+
+      # Шаг 3: Сборка и ТЕСТИРОВАНИЕ
+      # Это критический момент: если mvn test упадет, пайплайн остановится
+      - name: Build and Test with Maven
+        run: mvn -B package --file pom.xml
+
+      # Шаг 4: Проверка сборки Docker-образа
+      # Мы проверяем, что наш Dockerfile корректен и образ собирается
+      - name: Build Docker Image
+        run: |
+          docker build . --file Dockerfile --tag my-java-app:${{ github.sha }}
+          echo "Docker image built successfully!"
